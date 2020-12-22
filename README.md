@@ -1,2 +1,2 @@
 # CodeHub
-![image](https://github.com/Kusunoki0130/CodeHub/edit/master/structure.png)
+![image](https://github.com/Kusunoki0130/CodeHub/blob/master/structure.png)
