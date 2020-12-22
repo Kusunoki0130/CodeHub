@@ -1,0 +1,294 @@
+﻿@using CodeHub.Models.Entity
+@model CodeHub.Models.Entity.User
+@{
+    if (Session["user"] != null)
+    {
+        ViewData["id"] = ((User)Session["user"]).id;
+        ViewData["name"] = ((User)Session["user"]).name;
+        ViewData["phone"] = ((User)Session["user"]).phone;
+        ViewData["email"] = ((User)Session["user"]).email;
+        ViewData["isAdmin"] = ((User)Session["user"]).isAdmin;
+        ViewData["follow"] = ((User)Session["user"]).follow;
+        ViewData["fans"] = ((User)Session["user"]).fans;
+        ViewData["like"] = ((User)Session["user"]).like;
+        ViewData["collect"] = ((User)Session["user"]).collect;
+        ViewData["comment"] = ((User)Session["user"]).comment;
+        ViewData["isFollowed"] = false;
+        if ((List<int>)ViewData["fanIds"] != null)
+        {
+            foreach (var i in (List<int>)ViewData["fanIds"])
+            {
+                if (i == (int)ViewData["id"])
+                {
+                    ViewData["isFollowed"] = true;
+                    break;
+                }
+            }
+        }
+    }
+    ViewBag.Title = "仓库";
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=chrome">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Warehouse</title>
+    @Styles.Render("~/home/css")
+    @Styles.Render("~/home/warehouse/css")
+</head>
+<body onload="load()">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h2>
+                @Model.name 的代码仓库
+                @if (Session["user"] != null)
+                {
+                    if ((int)ViewData["id"] == Model.id)
+                    {
+
+                        <input type="button" class="btn btn-primary pull-right" value="登出" onclick="logout()" />
+                        <input type="button" class="btn btn-warning pull-right" value="消息盒子" onclick="news(@ViewData["id"])" />
+                    }
+                    else if ((int)ViewData["id"] != Model.id)
+                    {
+                        if ((bool)ViewData["isFollowed"])
+                        {
+                            <input type="button" class="btn btn-danger pull-right" value="取消关注" onclick="addfollow(@ViewData["id"], @Model.id, 1)" />
+                        }
+                        else
+                        {
+                            <input type="button" class="btn btn-warning pull-right" value="关注" onclick="addfollow(@ViewData["id"], @Model.id, 0)" />
+                        }
+                    }
+                }
+            </h2>
+        </div>
+        <div class="panel-body">
+            <ul class="list-group">
+                <li class="list-group-item">编号: @Model.id</li>
+                <li class="list-group-item">
+                    昵称: @Model.name
+                    @if (Model.isAdmin == 1)
+                    {
+                        <span class="label label-danger">管理员</span>
+                    }
+                </li>
+            </ul>
+            <table class="table c1">
+                <tr>
+                    <td>粉丝</td>
+                    <td>关注</td>
+                    <td>点赞</td>
+                    <td>评论</td>
+                    <td>收藏</td>
+                </tr>
+                <tr>
+                    <td>@Model.fans</td>
+                    <td>@Model.follow</td>
+                    <td>@Model.like</td>
+                    <td>@Model.comment</td>
+                    <td>@Model.collect</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    @if (Session["user"]!=null && (int)ViewData["id"] == Model.id)
+    {
+        <ul class="nav nav-tabs kksk">
+            <li role="presentation" class="active" name="bar" onclick="setVisable(0)"><a href="#">我的仓库</a></li>
+            <li role="presentation" name="bar"><a href="#" onclick="setVisable(1)">我的收藏</a></li>
+        </ul>
+    }
+    @if (((List<Article>)ViewData["articles"]).Count != 0)
+    {
+        <div name="List">
+            @{
+                var l1 = ((List<Article>)ViewData["articles"]).GetEnumerator();
+                var l2 = ((List<string>)ViewData["names"]).GetEnumerator();
+                var cnt1 = 0;
+                while (l1.MoveNext() && l2.MoveNext())
+                {
+                    Article article = l1.Current;
+                    string username = l2.Current;
+                    ViewData["article_id"] = article.id;
+                    ViewData["article_title"] = article.title;
+                    ViewData["article_abstract"] = article.abstrac;
+                    ViewData["article_username"] = username;
+                    ViewData["article_like"] = article.like;
+                    ViewData["article_collect"] = article.collect;
+                    ViewData["article_time"] = article.time;
+                    ViewData["warehousePath"] = "/Home/warehouse/" + article.userId;
+                    ViewData["showPath"] = "/Article/show/" + article.id;
+                    ViewData["editorPath"] = "/Article/editor/" + article.id;
+                    if (article.isHidden == 1 || ((article.isPublish == 0 || article.isPersonal == 1) && (Session["user"] == null || article.userId != (int)ViewData["id"])))
+                    {
+                        continue;
+                    }
+                    ++cnt1;
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <h3>
+                                @ViewData["article_title"]
+                                @if (article.isPublish == 0)
+                                {
+                                    <span class="label label-warning">草稿</span>
+                                }
+                                else if (article.isPersonal == 1)
+                                {
+                                    <span class="label label-danger">私人</span>
+                                }
+                                else
+                                {
+                                    <span class="label label-success">公开</span>
+                                }
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="typo typo-selection js-toc-content m-padded-lr-response m-paded-tb-huge">
+                                @Html.Raw(@ViewData["article_abstract"])
+                            </div>
+                        </div>
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <table class="table">
+                                    <tr>
+                                        <td style="width:200px;"><a href=@ViewData["warehousePath"]>@ViewData["article_username"]</a></td>
+                                        <td>
+                                            <span class="label label-danger hov">点赞 @ViewData["article_like"]</span>
+                                            <span class="label label-warning hov">收藏 @ViewData["article_collect"]</span>
+                                        </td>
+                                        <td>@ViewData["article_time"]</td>
+                                        <td class="pull-right" style="width:200px;">
+                                            <a href=@ViewData["showPath"]>查看</a>
+                                            @if (Session["user"] != null && article.userId == (int)ViewData["id"])
+                                            {
+                                                <span>|</span><a href=@ViewData["editorPath"]>编辑</a>
+                                                <span>|</span><a href="" onclick="deleteArticle(@ViewData["article_id"])">删除</a>
+                                            }
+                                        </td>
+                                    </tr>
+                                </table>
+                            </li>
+                        </ul>
+                    </div>
+                }
+                <div class="panel panel-default">
+                    共 @cnt1 篇
+                </div>
+            }
+        </div>
+        if (Session["user"]!=null && (int)ViewData["id"] == Model.id)
+        {
+            <div name="List">
+                @{
+                    var v1 = ((List<Article>)ViewData["collect_articles"]).GetEnumerator();
+                    var v2 = ((List<string>)ViewData["collect_usernames"]).GetEnumerator();
+                    var cnt2 = 0;
+                    while (v1.MoveNext() && v2.MoveNext())
+                    {
+                        Article article = v1.Current;
+                        string username = v2.Current;
+                        ViewData["article_id"] = article.id;
+                        ViewData["article_title"] = article.title;
+                        ViewData["article_abstract"] = article.abstrac;
+                        ViewData["article_username"] = username;
+                        ViewData["article_like"] = article.like;
+                        ViewData["article_collect"] = article.collect;
+                        ViewData["article_time"] = article.time;
+                        ViewData["warehousePath"] = "/Home/warehouse/" + article.userId;
+                        ViewData["showPath"] = "/Article/show/" + article.id;
+                        ViewData["editorPath"] = "/Article/editor/" + article.id;
+                        ViewData["collectPath"] ="\"" + article.id + "a" + ViewData["id"] + "a1a1" + "\"";
+                        if (article.isHidden == 1 || ((article.isPublish == 0 || article.isPersonal == 1) && (Session["user"] == null || article.userId != (int)ViewData["id"])))
+                        {
+                            continue;
+                        }
+                        ++cnt2;
+                        <div class="panel panel-info">
+                            <div class="panel-heading">
+                                <h3>
+                                    @ViewData["article_title"]
+                                    @if (article.isPublish == 0)
+                                    {
+                                        <span class="label label-warning">草稿</span>
+                                    }
+                                    else if (article.isPersonal == 1)
+                                    {
+                                        <span class="label label-danger">私人</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="label label-success">公开</span>
+                                    }
+                                </h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="typo typo-selection js-toc-content m-padded-lr-response m-paded-tb-huge">
+                                    @Html.Raw(@ViewData["article_abstract"])
+                                </div>
+                            </div>
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    <table class="table">
+                                        <tr>
+                                            <td style="width:200px;"><a href=@ViewData["warehousePath"]>@ViewData["article_username"]</a></td>
+                                            <td>
+                                                <span class="label label-danger hov">点赞 @ViewData["article_like"]</span>
+                                                <span class="label label-warning hov">收藏 @ViewData["article_collect"]</span>
+                                            </td>
+                                            <td>@ViewData["article_time"]</td>
+                                            <td class="pull-right" style="width:200px;">
+                                                <a href=@ViewData["showPath"]>查看</a>
+                                                <span>|<a href="" onclick="collect(@ViewData["collectPath"])">取消收藏</a></span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    <div class="panel panel-default">
+                        共 @cnt2 篇
+                    </div>
+                }
+            </div>
+        }
+
+    }
+    else
+    {
+        <div class="panel panel-default">
+            仓库里空空如也......
+            <a href="/Article/editor/0">立刻前往编写发布页面</a>
+        </div>
+    }
+</body>
+@Scripts.Render("~/home/js")
+@Scripts.Render("~/home/warehouse/js")
+</html>
+<script src="https://cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+    // Config
+    MathJax.Hub.Config({
+    showProcessingMessages: false,
+    messageStyle: "none",
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+    inlineMath: [["$", "$"]],
+    displayMath: [["$$", "$$"]],
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'a'],
+    ignoreClass: "comment-content"
+    },
+    "HTML-CSS": {
+    availableFonts: ["STIX", "TeX"],
+    showMathMenu: false
+    }
+    });
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+</script>

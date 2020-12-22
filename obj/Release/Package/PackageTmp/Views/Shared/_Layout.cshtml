@@ -1,0 +1,45 @@
+﻿@using CodeHub.Models.Entity
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/navbar/css")
+</head>
+<body>
+    <div class="navbar navbar-default navbar-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/Index/welcome">
+                    <img alt="Brand" src="~/Static/img/codeHub.png" style="height:50px; width:250px;">
+                </a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    @if (Session["user"] == null)
+                    {
+                        <li><a href="/Index/login">登录</a></li>
+                    }
+                    else
+                    {
+                        ViewData["path"] = "/Home/warehouse/" + ((User)Session["user"]).id;
+                        ViewData["name"] = ((User)Session["user"]).name;
+                        <li><a href=@ViewData["path"]>@ViewData["name"]的代码仓库</a></li>
+                    }
+                    <li><a href="/Community/articleBoard">社区</a></li>
+                    <li><a href="/Article/editor/0">发布</a></li>
+                    <li><a href="/Pastebin/write">Pastebin</a></li>
+                    @if (Session["user"] != null && ((User)Session["user"]).isAdmin == 1)
+                    {
+                        <li><a href="#">后台</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+    @RenderBody()
+</body>
+@Scripts.Render("~/navbar/js")
+@RenderSection("scripts", required: false)
+</html>

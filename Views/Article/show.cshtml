@@ -1,0 +1,186 @@
+﻿@using CodeHub.Models.Entity
+@{
+    ViewData["articleId"] = ((Article)ViewData["article"]).id;
+    ViewData["articletitle"] = ((Article)ViewData["article"]).title;
+    ViewData["code"] = ((Article)ViewData["article"]).code;
+    ViewData["md"] = ((Article)ViewData["article"]).md;
+    ViewData["languagemode"] = ((Article)ViewData["article"]).languagemode;
+    ViewData["theme"] = ((Article)ViewData["article"]).theme;
+    ViewData["autorPath"] = "/Home/warehouse/" + ((Article)ViewData["article"]).userId;
+    ViewData["article_like"] = ((Article)ViewData["article"]).like;
+    ViewData["article_collect"] = ((Article)ViewData["article"]).collect;
+    ViewData["article_time"] = ((Article)ViewData["article"]).time;
+    ViewBag.Title = "查看文章";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=chrome">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Warehouse</title>
+    @Styles.Render("/article/css")
+    @Styles.Render("/article/show/css")
+</head>
+<body onload="load()">
+    <div class="panel panel-info" id="narbar1">
+        <div class="panel-heading"><h2>@ViewData["articletitle"]</h2></div>
+        <div class="panel-body">
+            <table class="table">
+                <tr>
+                    <td>
+                        <a href=@ViewData["autorPath"]>@ViewData["name"]</a>
+                        <span>@ViewData["article_time"]</span>
+                    </td>
+                    <td>
+                        @if (Session["user"] != null)
+                        {
+                            ViewData["userId"] = ((User)Session["user"]).id;
+
+
+                            var flag = false;
+                            foreach (var i in (List<Article>)ViewData["collect_articles"])
+                            {
+                                if (i.id == (int)ViewData["articleId"])
+                                {
+                                    flag = true;
+                                    break;
+                                }
+                            }
+                            if (flag)
+                            {
+                                <span class="btn btn-danger hov pull-right" onclick="collect(@ViewData["articleId"], @ViewData["userId"])">取消收藏 @ViewData["article_collect"]</span>
+                            }
+                            else
+                            {
+                                <span class="btn btn-warning hov pull-right" onclick="collect(@ViewData["articleId"], @ViewData["userId"])">收藏 @ViewData["article_collect"]</span>
+                            }
+                            <span class="btn btn-danger hov pull-right" onclick="like(@ViewData["articleId"], @ViewData["userId"])">点赞 @ViewData["article_like"]</span>
+                            if ((int)ViewData["userId"]== ((Article)ViewData["article"]).userId)
+                            {
+                                string uurrll = "/Article/editor/" + ViewData["articleId"];
+                                <span><a class="btn btn-primary pull-right" href=@uurrll>编辑</a></span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="label label-warning hov pull-right">收藏 @ViewData["article_collect"]</span>
+                            <span class="label label-danger hov pull-right">点赞 @ViewData["article_like"]</span>
+                        }
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    @if ((int)((Article)ViewData["article"]).isHidden == 1 || (int)((Article)ViewData["article"]).isPublish == 0 || (int)((Article)ViewData["article"]).isPersonal == 1)
+    {
+        <div class="panel panel-default">
+            <span>该发布已被取消或删除</span>
+        </div>
+    }
+    else
+    {
+        <div class="panel panel-default">
+            <div>
+                <ul class="nav nav-tabs" id="navbar2">
+                    <li role="presentation" class="active" name="bar" onclick="setVisable(0)"><a href="#">CodeArea</a></li>
+                    <li role="presentation" name="bar"><a href="#" onclick="setVisable(1)">Description</a></li>
+                    <li role="presentation" name="bar"><a href="#" onclick="setVisable(2)">Comment</a></li>
+                </ul>
+            </div>
+            <div class="panel-body">
+                <div name="List">
+                    <div>
+                        <textarea id="code" name="code"></textarea>
+                    </div>
+                </div>
+                <div name="List">
+                    <div class="typo typo-selection js-toc-content m-padded-lr-response m-paded-tb-huge" id="mdArea">
+                        @Html.Raw(ViewData["md"])
+                    </div>
+                </div>
+                <div name="List">
+                    @if (Session["user"] != null)
+                    {
+                        ViewData["visterId"] = ((User)Session["user"]).id;
+                        ViewData["visterName"] = ((User)Session["user"]).name;
+                        ViewData["visterPath"] = "/Home/warehouse/" + ((User)Session["user"]).id;
+                        <textarea id="commentArea"></textarea>
+                        <span class="glyphicon glyphicon-user"></span>
+                        <span hidden id="comment_userId">@ViewData["visterId"]</span>
+                        <span hidden id="comment_articleId">@ViewData["articleId"]</span>
+                        <span><a href=@ViewData["visterPath"]>@ViewData["visterName"]</a></span>
+                        <input type="button" class="btn btn-primary pull-right" value="发表评论" onclick="comment()" />
+                    }
+                    <hr/>
+                    <div class="panel-heading"><h3>评论列表</h3></div>
+                    @{
+                        var c1 = ((List<Comment>)ViewData["comments"]).GetEnumerator();
+                        var c2 = ((List<string>)ViewData["usernames"]).GetEnumerator();
+                        while (c1.MoveNext() && c2.MoveNext())
+                        {
+                            Comment com = c1.Current;
+                            string name = c2.Current;
+                            string commenterPath = "/Home/warehouse/" + com.userId;
+                            <div class="alert alert-success" role="alert">
+                                <div>
+                                    <span class="glyphicon glyphicon-user"></span>
+                                    <span><a href=@commenterPath>@name</a></span>
+                                    <span>发表于</span>
+                                    <span>@(com.time)</span>
+                                    <span class="pull-right">
+                                        @if (Session["user"] != null)
+                                        {
+                                            string nname = "\"" + name + "\"";
+                                            <input type="button" class="btn btn-info" value="回复" onclick="reply(@(nname))"/>
+                                        }
+                                        @if (Session["user"] != null && (((Article)ViewData["article"]).userId == ((User)Session["user"]).id || com.userId == ((User)Session["user"]).id))
+                                        {
+                                            <input type="button" class="btn btn-primary" value="删除" onclick="deleteComment(@(com.id))"/>
+                                        }
+                                    </span>
+                                </div>
+                                <div>
+                                    <span>@(com.comment)</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div hidden id="codeshow">@ViewData["code"]</div>
+        <div hidden id="languagemode">@ViewData["languagemode"]</div>
+        <div hidden id="theme">@ViewData["theme"]</div>
+    }
+
+</body>
+@Scripts.Render("/article/js")
+@Scripts.Render("/article/show/js")
+</html>
+<script src="https://cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+    // Config
+    MathJax.Hub.Config({
+    showProcessingMessages: false,
+    messageStyle: "none",
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+    inlineMath: [["$", "$"]],
+    displayMath: [["$$", "$$"]],
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'a'],
+    ignoreClass: "comment-content"
+    },
+    "HTML-CSS": {
+    availableFonts: ["STIX", "TeX"],
+    showMathMenu: false
+    }
+    });
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+</script>
+

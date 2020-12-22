@@ -1,0 +1,89 @@
+﻿@using CodeHub.Models.Entity
+@{
+    ViewData["username"] = "";
+    if (Session["user"]!=null)
+    {
+        ViewData["username"] = ((User)Session["user"]).name;
+    }
+    ViewBag.Title = "Pastebin";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=chrome">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>粘贴板</title>
+    @Styles.Render("~/pastebin/css")
+    @Styles.Render("~/pastebin/write/css")
+</head>
+<body>
+    <div id="navbar1">
+        
+    </div>
+    <div class="panel panel-default" id="navbar2">
+        <div class="panel-heading"><h2>Pastebin</h2></div>
+        <div class="panel-body">
+            <table class="table">
+                <tr>
+                    <td>发布者</td>
+                    <td><input type="text" id="poster" value=@ViewData["username"]></td>
+                </tr>
+                <tr>
+                    <td>语言</td>
+                    <td>
+                        <select id="seLangauge" onclick="changeLanguage()">
+                            <option value="text/x-csrc">C</option>
+                            <option value="text/x-c++src">C++</option>
+                            <option value="text/x-csharp">C#</option>
+                            <option value="text/x-java">Java</option>
+                            <option value="text/javascript">Javascript</option>
+                            <option value="text/x-python">Python</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>代码高亮</td>
+                    <td>
+                        <select id="seTheme" onclick="changeTheme()">
+                            <option>3024-day</option>
+                            <option>base16-dark</option>
+                            <option>cobalt</option>
+                            <option>dracula</option>
+                            <option>icecoder</option>
+                            <option>idea</option>
+                            <option>mdn-like</option>
+                            <option>monokai</option>
+                            <option>seti</option>
+                            <option>the-matrix</option>
+                            <option>twilight</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="success">
+
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div id="codeArea">
+            <div>
+                <textarea id="code" name="code"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-footer">
+            <input type="button" class="btn btn-primary" value="提交" onclick="postCode()" />
+        </div>
+    </div>
+</body>
+@Scripts.Render("~/pastebin/js")
+@Scripts.Render("~/pastebin/write/js")
+
+</html>

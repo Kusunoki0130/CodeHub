@@ -1,0 +1,202 @@
+﻿@using CodeHub.Models.Entity
+@{
+    ViewData["userId"] = ((User)Session["user"]).id;
+    ViewBag.Title = "消息盒子";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=chrome">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>news</title>
+    @Styles.Render("~/home/css")
+    @Styles.Render("~/home/news/css")
+</head>
+<body onload="load()">
+    <div class="panel panel-primary">
+        <ul class="nav nav-tabs">
+            <li role="presentation" class="active" name="bar" onclick="setVisable(0)"><a href="#">我的粉丝</a></li>
+            <li role="presentation" name="bar"><a href="#" onclick="setVisable(1)">我的关注</a></li>
+            <li role="presentation" name="bar"><a href="#" onclick="setVisable(2)">点赞记录</a></li>
+            <li role="presentation" name="bar"><a href="#" onclick="setVisable(3)">收藏记录</a></li>
+            <li role="presentation" name="bar"><a href="#" onclick="setVisable(4)">评论记录</a></li>
+        </ul>
+        <div class="panel-body">
+            <div name="List">
+                @{
+                    // ViewData["fans"]
+                    // ViewData["followers"]
+                    foreach (User user in (List<User>)ViewData["fans"])
+                    {
+                        bool isFollowed = false;
+                        ViewData["authorPath"] = "/Home/warehouse/" + user.id;
+                        ViewData["user_id"] = user.id;
+                        ViewData["user_name"] = user.name;
+                        ViewData["user_fans"] = user.fans;
+                        ViewData["user_follow"] = user.follow;
+                        ViewData["user_like"] = user.like;
+                        ViewData["user_comment"] = user.comment;
+                        ViewData["user_collect"] = user.collect;
+                        foreach (User u in (List<User>)ViewData["followers"])
+                        {
+                            if (user.id == u.id)
+                            {
+                                isFollowed = true;
+                                break;
+                            }
+                        }
+                        <div class="alert alert-info" role="alert">
+                            <span class="glyphicon glyphicon-user"></span>
+                            <span><a href=@ViewData["authorPath"]>@ViewData["user_name"]</a></span>
+                            @if(user.isAdmin==1)
+                            {
+                                <span class="label label-danger">管理员</span>
+                            }
+                            @if (isFollowed)
+                            {
+                                <input type="button" class="btn btn-danger pull-right" value="取消关注" onclick="addfollow(@ViewData["userId"], @ViewData["user_id"], 1)" />
+                            }
+                            else
+                            {
+                                <input type="button" class="btn btn-warning pull-right" value="关注" onclick="addfollow(@ViewData["userId"], @ViewData["user_id"], 0)" />
+                            }
+                            <div>
+                                <span>粉丝 @ViewData["user_fans"]</span>
+                                <span>|关注 @ViewData["user_follow"]</span>
+                                <span>|点赞 @ViewData["user_like"]</span>
+                                <span>|评论 @ViewData["user_comment"]</span>
+                                <span>|收藏 @ViewData["user_collect"]</span>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+            <div name="List">
+                @{
+                    // ViewData["fans"]
+                    // ViewData["followers"]
+                    foreach (User user in (List<User>)ViewData["followers"])
+                    {
+                        ViewData["authorPath"] = "/Home/warehouse/" + user.id;
+                        ViewData["user_id"] = user.id;
+                        ViewData["user_name"] = user.name;
+                        ViewData["user_fans"] = user.fans;
+                        ViewData["user_follow"] = user.follow;
+                        ViewData["user_like"] = user.like;
+                        ViewData["user_comment"] = user.comment;
+                        ViewData["user_collect"] = user.collect;
+                        <div class="alert alert-info" role="alert">
+                            <span class="glyphicon glyphicon-user"></span>
+                            <span><a href=@ViewData["authorPath"]>@ViewData["user_name"]</a></span>
+                            @if (user.isAdmin == 1)
+                            {
+                                <span class="label label-danger">管理员</span>
+                            }
+                            <input type="button" class="btn btn-danger pull-right" value="取消关注" onclick="addfollow(@ViewData["userId"], @ViewData["user_id"], 1)" />
+                            <div>
+                                <span>粉丝 @ViewData["user_fans"]</span>
+                                <span>|关注 @ViewData["user_follow"]</span>
+                                <span>|点赞 @ViewData["user_like"]</span>
+                                <span>|评论 @ViewData["user_comment"]</span>
+                                <span>|收藏 @ViewData["user_collect"]</span>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+            <div name="List">
+                @{ 
+                    var userIds = ((List<int>)((Dictionary<string,object>)ViewData["likeList"])["userIds"]).GetEnumerator();
+                    var usernames = ((List<string>)((Dictionary<string, object>)ViewData["likeList"])["usernames"]).GetEnumerator();
+                    var articleIds = ((List<int>)((Dictionary<string, object>)ViewData["likeList"])["articleIds"]).GetEnumerator();
+                    var articleTitles = ((List<string>)((Dictionary<string, object>)ViewData["likeList"])["articleTitles"]).GetEnumerator();
+                    var likeTime = ((List<string>)((Dictionary<string, object>)ViewData["likeList"])["likeTime"]).GetEnumerator();
+                    while(userIds.MoveNext() && usernames.MoveNext() && articleIds.MoveNext() && articleTitles.MoveNext() && likeTime.MoveNext())
+                    {
+                        ViewData["like_userId_path"] = "/Home/warehouse/" + userIds.Current;
+                        ViewData["like_username"] = usernames.Current;
+                        ViewData["like_articleId_path"] = "/Article/show/" + articleIds.Current;
+                        ViewData["like_articleTitle"] = articleTitles.Current;
+                        ViewData["like_likeTime"] = likeTime.Current;
+
+                        <div class="alert" role="alert">
+                            <span class="glyphicon glyphicon-user"></span>
+                            <span><a href=@ViewData["like_userId_path"]>@ViewData["like_username"]</a></span>
+                            <span>点赞了你发布的 "</span>
+                            <span>@ViewData["like_articleTitle"]</span>
+                            <span>" <a href=@ViewData["like_articleId_path"]>前往查看</a></span>
+                            <span class="pull-right">@ViewData["like_likeTime"]</span>
+                        </div>
+                    }
+                }
+            </div>
+            <div name="List">
+                @{
+                    userIds = ((List<int>)((Dictionary<string, object>)ViewData["collectList"])["userIds"]).GetEnumerator();
+                    usernames = ((List<string>)((Dictionary<string, object>)ViewData["collectList"])["usernames"]).GetEnumerator();
+                    articleIds = ((List<int>)((Dictionary<string, object>)ViewData["collectList"])["articleIds"]).GetEnumerator();
+                    articleTitles = ((List<string>)((Dictionary<string, object>)ViewData["collectList"])["articleTitles"]).GetEnumerator();
+                    var collectTime = ((List<string>)((Dictionary<string, object>)ViewData["collectList"])["collectTime"]).GetEnumerator();
+                    while (userIds.MoveNext() && usernames.MoveNext() && articleIds.MoveNext() && articleTitles.MoveNext() && collectTime.MoveNext())
+                    {
+                        ViewData["collect_userId_path"] = "/Home/warehouse/" + userIds.Current;
+                        ViewData["collect_username"] = usernames.Current;
+                        ViewData["collect_articleId_path"] = "/Article/show/" + articleIds.Current;
+                        ViewData["collect_articleTitle"] = articleTitles.Current;
+                        ViewData["collect_collectTime"] = collectTime.Current;
+
+                        <div class="alert" role="alert">
+                            <span class="glyphicon glyphicon-user"></span>
+                            <span><a href=@ViewData["collect_userId_path"]>@ViewData["collect_username"]</a></span>
+                            <span>收藏了你发布的 "</span>
+                            <span>@ViewData["collect_articleTitle"]</span>
+                            <span>" <a href=@ViewData["collect_articleId_path"]>前往查看</a></span>
+                            <span class="pull-right">@ViewData["collect_collectTime"]</span>
+                        </div>
+                    }
+                }
+            </div>
+            <div name="List">
+                @{
+                    var comments = ((List<Comment>)((Dictionary<string, object>)ViewData["commentList"])["comments"]).GetEnumerator();
+                    var commentNames = ((List<string>)((Dictionary<string, object>)ViewData["commentList"])["commentNames"]).GetEnumerator();
+                    var commentTitles = ((List<string>)((Dictionary<string, object>)ViewData["commentList"])["commentTitles"]).GetEnumerator();
+                    while (comments.MoveNext() && commentNames.MoveNext() && commentTitles.MoveNext())
+                    {
+                        Comment com = comments.Current;
+                        string commentName = commentNames.Current;
+                        string commentTitle = commentTitles.Current;
+                        ViewData["comment_userId_path"] = "/Home/warehouse/" + com.userId;
+                        ViewData["comment_content"] = "“" + com.comment + "”";
+                        ViewData["comment_article_path"] = "/Article/show/" + com.articleId;
+                        <div class="alert" role="alert">
+                            <span class="glyphicon glyphicon-user"></span>
+                            <span><a href=@ViewData["comment_userId_path"]>@commentName</a></span>
+                            <span>评论了你发布的 "</span>
+                            <span>@commentTitle</span>
+                            <span>" <a href=@ViewData["comment_article_path"]>前往查看</a></span>
+                            <span class="pull-right">@(com.time)</span>
+                            <div>
+                                <span>@ViewData["comment_content"]</span>
+                            </div>
+                        </div>
+                    }
+                }
+
+            </div>
+        </div>
+    </div>
+</body>
+@Scripts.Render("~/home/js")
+@Scripts.Render("~/home/news/js")
+</html>
+
+
+
+
+

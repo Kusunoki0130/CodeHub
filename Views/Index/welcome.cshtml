@@ -1,0 +1,77 @@
+﻿
+@{
+    ViewBag.Title = "Wellcome to CodeHub";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=chrome">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>CodeHub</title>
+    @Styles.Render("~/index/css")
+    @Styles.Render("~/index/index/css")
+</head>
+<body>
+    <div class="jumbotron imgg">
+        <img src="~/Static/img/codeHub.png" />
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><h2>Introduction</h2></div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-6 col-md-4">
+                    <div class="thumbnail">
+                        <img src="~/Static/img/coding.png" alt="...">
+                        <div class="caption">
+                            <h3>Coding more...</h3>
+                            <p style="font:20px;">使用在线代码编辑器书写代码，并将您的代码保存到在线代码仓库中。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="thumbnail">
+                        <img src="~/Static/img/learning.png" alt="...">
+                        <div class="caption">
+                            <h3>Learning more...</h3>
+                            <p style="font:20px;">浏览其它Coder发布的代码，关注自己喜欢的Coder，收藏自己喜欢的代码。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-4">
+                    <div class="thumbnail">
+                        <img src="~/Static/img/sharing.png" alt="...">
+                        <div class="caption">
+                            <h3>Sharing more...</h3>
+                            <p style="font:20px;">发布您仓库中的代码，分享给其他Coder，或者使用Pastebin分享即时代码。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading"><h2>Structure</h2></div>
+        <div class="panel-body">
+            <img src="~/Static/img/struct .png" />
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <ul class="list-group">
+                <li class="list-group-item"><input type="button" class="btn btn-primary" value="立即注册" onclick="redirectregi()" /></li>
+            </ul>
+        </div>
+    </div>
+</body>
+@Scripts.Render("~/index/js")
+@Scripts.Render("~/index/index/js")
+
+</html>
+

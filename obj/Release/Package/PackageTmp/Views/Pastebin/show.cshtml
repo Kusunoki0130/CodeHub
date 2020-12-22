@@ -1,0 +1,59 @@
+﻿@model CodeHub.Models.Entity.PasteCode 
+
+@{
+    ViewBag.Title = "Pastebin";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=chrome">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>粘贴板</title>
+    @Styles.Render("~/pastebin/css")
+    @Styles.Render("~/pastebin/show/css")
+</head>
+<body onload="load()">
+    <div id="navbar1">
+
+    </div>
+    <div class="panel panel-default" id="navbar2">
+        <div class="panel-heading"><h2>Pastebin</h2></div>
+        <div class="panel-body">
+            <table class="table">
+                <tr>
+                    <td>发布者</td>
+                    <td>@Model.poster</td>
+                </tr>
+                <tr>
+                    <td>语言</td>
+                    <td>@Model.language<span hidden id="langaugemode">@Model.languagemode</span></td>
+                </tr>
+                <tr>
+                    <td>代码高亮</td>
+                    <td id="theme">@Model.theme</td>
+                </tr>
+                <tr>
+                    <td>发布时间</td>
+                    <td>@Model.time</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div id="codeArea">
+            <div>
+                <textarea id="code" name="code"></textarea>
+            </div>
+        </div>
+        <p hidden id="codeshow">@Model.code</p>
+    </div>
+</body>
+@Scripts.Render("~/pastebin/js")
+@Scripts.Render("~/pastebin/show/js")
+
+</html>

@@ -1,0 +1,9 @@
+﻿.navbar {
+    height: 70px;
+    font-size: 20px;
+    text-align: center;
+}
+
+.nav > li > a {
+    margin-top: 12px;
+}

@@ -1,0 +1,138 @@
+﻿@using CodeHub.Models.Entity
+@{
+    ViewData["autorPath"] = "/Home/warehouse/" + ((User)Session["user"]).id;
+    if (ViewData["article"]!=null)
+    {
+        ViewData["id"] = ((Article)ViewData["article"]).id;
+        ViewData["articletitle"] = ((Article)ViewData["article"]).title;
+        ViewData["abstract"] = ((Article)ViewData["article"]).abstrac;
+        ViewData["code"] = ((Article)ViewData["article"]).code;
+        ViewData["md"] = ((Article)ViewData["article"]).md;
+        ViewData["language"] = ((Article)ViewData["article"]).language;
+        ViewData["languagemode"] = ((Article)ViewData["article"]).languagemode;
+        ViewData["theme"] = ((Article)ViewData["article"]).theme;
+        ViewData["article_isPublish"] = ((Article)ViewData["article"]).isPublish;
+        ViewData["article_isPersonal"] = ((Article)ViewData["article"]).isPersonal;
+        ViewData["article_like"] = ((Article)ViewData["article"]).like;
+        ViewData["article_collect"] = ((Article)ViewData["article"]).collect;
+        ViewData["article_time"] = ((Article)ViewData["article"]).time;
+    }
+    else
+    {
+        ViewData["id"] = 0;
+    }
+    ViewData["userId"] = ((User)Session["user"]).id;
+    Layout = null;
+    ViewBag.Title = "编辑文章";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=chrome">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>编辑文章</title>
+    @Styles.Render("~/article/css")
+    @Styles.Render("~/article/editor/css")
+</head>
+<body onload="load()">
+    <div hidden id="ifexist">@ViewData["id"]</div>
+    @if ((int)ViewData["id"] != 0)
+    {
+        <div id="articleTitle" hidden>@ViewData["articletitle"]</div>
+        <div id="articleAbstract" hidden>@Html.Raw(@ViewData["abstract"])</div>
+        <div id="articleCode" hidden>@ViewData["code"]</div>
+        <div id="articleMd" hidden>@Html.Raw(@ViewData["md"])</div>
+        <div id="articleLangauge" hidden>@ViewData["language"]</div>
+        <div id="articleLangaugemode" hidden>@ViewData["languagemode"]</div>
+        <div id="articleTheme" hidden>@ViewData["theme"]</div>
+        <div id="articleIsPublish" hidden>@ViewData["article_isPublish"]</div>
+        <div id="articleIsPersonal" hidden>@ViewData["article_isPersonal"]</div>
+        <div id="articleAutoPath" hidden>@ViewData["autorPath"]</div>
+        <div id="articleLike" hidden>@ViewData["article_like"]</div>
+        <div id="articleCollect" hidden>@ViewData["article_collect"]</div>
+    }
+    <div hidden id="userId">@ViewData["userId"]</div>
+    <div class="panel panel-default" id="navbar1">
+        <table class="table">
+            <tr>
+                <td>标题</td>
+                <td>语言</td>
+                <td>代码高亮</td>
+                <td>发布</td>
+                <td>私人</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" style="width:600px;" id="title" placeholder="title" />
+                </td>
+                <td>
+                    <select id="seLangauge" onclick="changeLanguage()">
+                        <option value="text/x-csrc">C</option>
+                        <option value="text/x-c++src">C++</option>
+                        <option value="text/x-csharp">C#</option>
+                        <option value="text/x-java">Java</option>
+                        <option value="text/javascript">Javascript</option>
+                        <option value="text/x-python">Python</option>
+                    </select>
+                </td>
+                <td>
+                    <select id="seTheme" onclick="changeTheme()">
+                        <option>3024-day</option>
+                        <option>base16-dark</option>
+                        <option>cobalt</option>
+                        <option>dracula</option>
+                        <option>icecoder</option>
+                        <option>idea</option>
+                        <option>mdn-like</option>
+                        <option>monokai</option>
+                        <option>seti</option>
+                        <option>the-matrix</option>
+                        <option>twilight</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="checkbox" id="publish" />
+                </td>
+                <td>
+                    <input type="checkbox" id="personal" />
+                </td>
+                <td>
+                    <input type="button" class="btn btn-primary" onclick="save()" value="保存"/>
+                    <a class="btn btn-primary" href=@ViewData["autorPath"]>我的仓库</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <ul class="nav nav-tabs" id="navbar2">
+            <li role="presentation" class="active" id="barCode" onclick="setVisable(0)"><a href="#">CodeArea</a></li>
+            <li role="presentation" id="barMd"><a href="#" onclick="setVisable(1)">Description</a></li>
+            <li role="presentation" id="barAb"><a href="#" onclick="setVisable(2)">Abstract</a></li>
+        </ul>
+    </div>
+    <div id="codeArea">
+        <div>
+            <textarea id="code" name="code"></textarea>
+        </div>
+    </div>
+    <div id="description">
+        <div id="description-editormd">
+            <textarea id="md" class="editormd-markdown-textarea"></textarea>
+        </div>
+    </div>
+    <div id="abstract">
+        <div id="abstract-editormd">
+            <textarea id="abstrac" class="editormd-markdown-textarea"></textarea>
+        </div>
+    </div>
+</body>
+@Scripts.Render("~/article/js")
+@Scripts.Render("~/article/editor/js")
+
+</html>
